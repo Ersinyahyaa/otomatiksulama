@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Su Sistemi Kontrol Paneli</title>
+  <script type="module">
+    // Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
+      authDomain: "esp32-b35c8.firebaseapp.com",
+      databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "esp32-b35c8",
+      storageBucket: "esp32-b35c8.appspot.com",
+      messagingSenderId: "your-messaging-id",
+      appId: "your-app-id"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Canlı veri dinlemesi
+    const rootRef = ref(db, '/');
+    onValue(rootRef, (snapshot) => {
+      const data = snapshot.val();
+      document.getElementById("suYuzdesi").innerText = data.suYuzdesi + "%";
+      document.getElementById("suLitresi").innerText = data.suLitresi + " L";
+      document.getElementById("toprakNem").innerText = data.toprakNem;
+      document.getElementById("artezyenDurum").innerText = data.artezyenDurum ? "Açık" : "Kapalı";
+      document.getElementById("hidroforDurum").innerText = data.hidroforDurum ? "Açık" : "Kapalı";
+    });
+
+    // Butonlar ile veri güncelleme
+    window.toggleHidrofor = function () {
+      const refPath = ref(db, 'hidroforDurum');
+      onValue(refPath, (snapshot) => {
+        const current = snapshot.val();
+        set(refPath, !current);
+      }, { onlyOnce: true });
+    };
+
+    window.toggleArtezyen = function () {
+      const refPath = ref(db, 'artezyenDurum');
+      onValue(refPath, (snapshot) => {
+        const current = snapshot.val();
+        set(refPath, !current);
+      }, { onlyOnce: true });
+    };
+  </script>
+</head>
+<body>
+  <h1>🚰 Su Sistemi Kontrol Paneli</h1>
+  <p><strong>Su Yüzdesi:</strong> <span id="suYuzdesi">--</span></p>
+  <p><strong>Su Litresi:</strong> <span id="suLitresi">--</span></p>
+  <p><strong>Toprak Nem:</strong> <span id="toprakNem">--</span></p>
+  <p><strong>Artezyen:</strong> <span id="artezyenDurum">--</span> <button onclick="toggleArtezyen()">Değiştir</button></p>
+  <p><strong>Hidrofor:</strong> <span id="hidroforDurum">--</span> <button onclick="toggleHidrofor()">Değiştir</button></p>
+</body>
+</html>
