@@ -1,63 +1,56 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Su Sistemi Kontrol Paneli</title>
-  <script type="module">
-    // Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  <title>Akıllı Sulama Paneli - V1</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f7; }
+    h1 { color: #2c3e50; }
+    .veri { margin: 10px 0; padding: 10px; background: #fff; border-left: 5px solid #27ae60; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h1>🌱 Akıllı Sulama Paneli</h1>
 
-    // Firebase config
+  <div class="veri" id="suYuzdesi">Su Yüzdesi: ...</div>
+  <div class="veri" id="suLitresi">Su Litresi: ...</div>
+  <div class="veri" id="toprakNem">Toprak Nemi: ...</div>
+  <div class="veri" id="hidroforDurum">Hidrofor Durumu: ...</div>
+  <div class="veri" id="artezyenDurum">Artezyen Durumu: ...</div>
+  <div class="veri" id="vana1Durum">Vana 1: ...</div>
+  <div class="veri" id="vana2Durum">Vana 2: ...</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
     const firebaseConfig = {
-     apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
-    authDomain: "esp32-b35c8.firebaseapp.com",
-    databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "esp32-b35c8",
-    storageBucket: "esp32-b35c8.firebasestorage.app",
-    messagingSenderId: "47343608336",
-    appId: "1:47343608336:web:2896e196cdf3f2b8616095"
+      apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
+      authDomain: "esp32-b35c8.firebaseapp.com",
+      databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "esp32-b35c8",
+      storageBucket: "esp32-b35c8.firebasestorage.app",
+      messagingSenderId: "47343608336",
+      appId: "1:47343608336:web:2896e196cdf3f2b8616095"
     };
 
+    // Firebase başlat
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Canlı veri dinlemesi
-    const rootRef = ref(db, '/');
-    onValue(rootRef, (snapshot) => {
-      const data = snapshot.val();
-      document.getElementById("suYuzdesi").innerText = data.suYuzdesi + "%";
-      document.getElementById("suLitresi").innerText = data.suLitresi + " L";
-      document.getElementById("toprakNem").innerText = data.toprakNem;
-      document.getElementById("artezyenDurum").innerText = data.artezyenDurum ? "Açık" : "Kapalı";
-      document.getElementById("hidroforDurum").innerText = data.hidroforDurum ? "Açık" : "Kapalı";
+    // Veri çek ve ekrana yaz
+    const veriRef = ref(db, '/');
+    onValue(veriRef, (snapshot) => {
+      const veri = snapshot.val();
+
+      document.getElementById("suYuzdesi").textContent = `Su Yüzdesi: ${veri.suYuzdesi}%`;
+      document.getElementById("suLitresi").textContent = `Su Litresi: ${veri.suLitresi} L`;
+      document.getElementById("toprakNem").textContent = `Toprak Nemi: ${veri.toprakNem}`;
+      document.getElementById("hidroforDurum").textContent = `Hidrofor: ${veri.hidroforDurum ? 'Açık' : 'Kapalı'}`;
+      document.getElementById("artezyenDurum").textContent = `Artezyen: ${veri.artezyenDurum ? 'Açık' : 'Kapalı'}`;
+      document.getElementById("vana1Durum").textContent = `Vana 1: ${veri.vana1Durum ? 'Açık' : 'Kapalı'}`;
+      document.getElementById("vana2Durum").textContent = `Vana 2: ${veri.vana2Durum ? 'Açık' : 'Kapalı'}`;
     });
-
-    // Butonlar ile veri güncelleme
-    window.toggleHidrofor = function () {
-      const refPath = ref(db, 'hidroforDurum');
-      onValue(refPath, (snapshot) => {
-        const current = snapshot.val();
-        set(refPath, !current);
-      }, { onlyOnce: true });
-    };
-
-    window.toggleArtezyen = function () {
-      const refPath = ref(db, 'artezyenDurum');
-      onValue(refPath, (snapshot) => {
-        const current = snapshot.val();
-        set(refPath, !current);
-      }, { onlyOnce: true });
-    };
   </script>
-</head>
-<body>
-  <h1>🚰 Su Sistemi Kontrol Paneli</h1>
-  <p><strong>Su Yüzdesi:</strong> <span id="suYuzdesi">--</span></p>
-  <p><strong>Su Litresi:</strong> <span id="suLitresi">--</span></p>
-  <p><strong>Toprak Nem:</strong> <span id="toprakNem">--</span></p>
-  <p><strong>Artezyen:</strong> <span id="artezyenDurum">--</span> <button onclick="toggleArtezyen()">Değiştir</button></p>
-  <p><strong>Hidrofor:</strong> <span id="hidroforDurum">--</span> <button onclick="toggleHidrofor()">Değiştir</button></p>
 </body>
 </html>
