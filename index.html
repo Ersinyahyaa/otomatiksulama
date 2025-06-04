@@ -65,22 +65,10 @@
       color: white;
       transition: opacity 0.3s ease;
     }
-    #allOffBtn {
-      background-color: #d32f2f;
-    }
-    #allOffBtn:hover {
-      opacity: 0.8;
-    }
-    #logoutBtn {
-      background-color: #555;
-    }
-    #logoutBtn:hover {
-      opacity: 0.8;
-    }
-
-    #dashboard {
-      display: none;
-    }
+    #allOffBtn { background-color: #d32f2f; }
+    #allOffBtn:hover, #logoutBtn:hover { opacity: 0.8; }
+    #logoutBtn { background-color: #555; }
+    #dashboard { display: none; }
     #loginForm {
       max-width: 400px;
       margin: 80px auto 20px;
@@ -97,12 +85,8 @@
       border: 1.5px solid #ccc;
       border-radius: 10px;
       box-sizing: border-box;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
     }
-    #loginForm input:focus {
-      border-color: #1e88e5;
-    }
+    #loginForm input:focus { border-color: #1e88e5; }
     #loginForm button {
       width: 100%;
       background-color: #1e88e5;
@@ -112,11 +96,8 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-    #loginForm button:hover {
-      background-color: #1565c0;
-    }
+    #loginForm button:hover { background-color: #1565c0; }
     #dashboard .relay-container {
       max-width: 960px;
       margin: 20px auto 0;
@@ -124,21 +105,23 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    @media (max-width: 700px) {
-      .relay-card {
-        width: 90%;
-        margin: 10px auto;
-        display: block;
-      }
-      body {
-        padding: 0 10px 60px;
-      }
-    }
     footer {
       font-size: 0.9rem;
       color: #666;
       padding: 10px 0;
       margin-top: 40px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #f1f1f1;
     }
   </style>
 </head>
@@ -157,37 +140,46 @@
   <div id="dashboard">
     <div class="relay-container">
       <div class="relay-card">
-        <h2>Relay 1</h2>
+        <h2>Vana 1</h2>
         <p>Status: <span id="status1">Loading...</span></p>
         <button id="btn1">Toggle</button>
       </div>
-
       <div class="relay-card">
-        <h2>Relay 2</h2>
+        <h2>Vana 2</h2>
         <p>Status: <span id="status2">Loading...</span></p>
         <button id="btn2">Toggle</button>
       </div>
-
       <div class="relay-card">
-        <h2>Relay 3</h2>
+        <h2>Hidrofor</h2>
         <p>Status: <span id="status3">Loading...</span></p>
         <button id="btn3">Toggle</button>
       </div>
-
       <div class="relay-card">
-        <h2>Relay 4</h2>
+        <h2>Artezyen</h2>
         <p>Status: <span id="status4">Loading...</span></p>
         <button id="btn4">Toggle</button>
       </div>
     </div>
 
-    <button id="allOffBtn">All OFF</button>
-    <button id="logoutBtn">Logout</button>
+    <!-- Log Tablosu -->
+    <div class="relay-card" style="width: 95%; max-width: 800px;">
+      <h2>Log Kayıtları</h2>
+      <table id="logTable">
+        <thead>
+          <tr>
+            <th>Tarih</th>
+            <th>Veri</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <button id="allOffBtn">Tüm Röleleri Kapat</button>
+    <button id="logoutBtn">Çıkış Yap</button>
   </div>
 
-  <footer>
-    Created by Tech StudyCell
-  </footer>
+  <footer>Created by Tech StudyCell • Firebase & ESP32 Dashboard</footer>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -195,16 +187,15 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
-	  apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
-	    authDomain: "esp32-b35c8.firebaseapp.com",
-	    databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
-	    projectId: "esp32-b35c8",
-	    storageBucket: "esp32-b35c8.firebasestorage.app",
-	    messagingSenderId: "47343608336",
-	    appId: "1:47343608336:web:2896e196cdf3f2b8616095"
-	};
+      apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
+      authDomain: "esp32-b35c8.firebaseapp.com",
+      databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "esp32-b35c8",
+      storageBucket: "esp32-b35c8.firebasestorage.app",
+      messagingSenderId: "47343608336",
+      appId: "1:47343608336:web:2896e196cdf3f2b8616095"
+    };
 
     firebase.initializeApp(firebaseConfig);
 
@@ -217,30 +208,27 @@
       const password = document.getElementById("password").value;
 
       if (!email || !password) {
-        alert("Please enter email and password.");
+        alert("Lütfen e-posta ve şifre girin.");
         return;
       }
 
       firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          console.log("Signed in as", userCredential.user.email);
+        .then(() => {
           loginForm.style.display = "none";
           dashboard.style.display = "block";
           startRelayControl();
+          loadLogs();
         })
-        .catch(error => {
-          alert("Login failed: " + error.message);
-        });
+        .catch(error => alert("Giriş başarısız: " + error.message));
     });
 
     function startRelayControl() {
       const db = firebase.database();
-
       const relays = [
-        { id: 1, path: "relay1" },
-        { id: 2, path: "relay2" },
-        { id: 3, path: "relay3" },
-        { id: 4, path: "relay4" },
+        { id: 1, path: "vana1Durum" },
+        { id: 2, path: "vana2Durum" },
+        { id: 3, path: "hidroforDurum" },
+        { id: 4, path: "artezyenDurum" },
       ];
 
       relays.forEach(relay => {
@@ -250,7 +238,7 @@
 
         relayRef.on("value", (snapshot) => {
           const state = snapshot.val();
-          statusText.innerText = state ? "ON" : "OFF";
+          statusText.innerText = state ? "AÇIK" : "KAPALI";
           toggleButton.style.backgroundColor = state ? "green" : "blue";
         });
 
@@ -268,6 +256,35 @@
       };
     }
 
+    function loadLogs() {
+      const db = firebase.database();
+      const logRef = db.ref("/loglar");
+      const logTableBody = document.querySelector("#logTable tbody");
+      logTableBody.innerHTML = "";
+
+      logRef.once("value", (snapshot) => {
+        const logs = snapshot.val();
+        if (logs) {
+          Object.keys(logs).sort().reverse().forEach((date) => {
+            const row = document.createElement("tr");
+            const dateCell = document.createElement("td");
+            const dataCell = document.createElement("td");
+
+            dateCell.textContent = date;
+            dataCell.textContent = JSON.stringify(logs[date]);
+
+            row.appendChild(dateCell);
+            row.appendChild(dataCell);
+            logTableBody.appendChild(row);
+          });
+        } else {
+          const row = document.createElement("tr");
+          row.innerHTML = "<td colspan='2'>Log kaydı bulunamadı.</td>";
+          logTableBody.appendChild(row);
+        }
+      });
+    }
+
     document.getElementById("logoutBtn").onclick = () => {
       firebase.auth().signOut()
         .then(() => {
@@ -276,9 +293,7 @@
           document.getElementById("email").value = "";
           document.getElementById("password").value = "";
         })
-        .catch(error => {
-          alert("Logout failed: " + error.message);
-        });
+        .catch(error => alert("Çıkış başarısız: " + error.message));
     };
   </script>
 </body>
