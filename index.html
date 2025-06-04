@@ -1,215 +1,256 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Firebase Relay Control Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Firebase Kontrol Paneli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f9f9f9;
+      background-color: #f4f4f4;
       margin: 0;
-      padding: 0 10px 40px;
+      padding: 0;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      justify-content: space-between;
     }
-    h1 {
-      margin-top: 30px;
-      font-size: 1.8rem;
-    }
-    .relay-card {
-      display: inline-block;
-      padding: 20px;
-      margin: 15px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 220px;
-      vertical-align: top;
-      color: white;
-    }
-    .relay-card h2 {
-      margin-bottom: 10px;
-      font-size: 1.3rem;
-    }
-    .relay-card p {
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-    .relay-card button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 10px;
-      color: white;
+    header {
       background-color: #1e88e5;
-      cursor: pointer;
-      font-size: 16px;
-      width: 90%;
-    }
-    #dashboard .relay-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .log-table {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 960px;
-      border-collapse: collapse;
-    }
-    .log-table th, .log-table td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    .log-table th {
-      background-color: #f0f0f0;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.5rem;
     }
     #loginForm {
       max-width: 400px;
-      margin: 80px auto 20px;
+      margin: auto;
+      margin-top: 50px;
+      padding: 20px;
       background: white;
-      padding: 30px 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    #loginForm input, #loginForm button {
+    #loginForm input {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       margin: 10px 0;
-      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
     #loginForm button {
+      width: 100%;
+      padding: 10px;
       background-color: #1e88e5;
       color: white;
       border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    #dashboard {
+      display: none;
+      padding: 20px;
+    }
+    .status-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+    .card {
+      background: white;
+      padding: 15px;
       border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 200px;
+      text-align: center;
+    }
+    .card h3 {
+      margin: 10px 0;
+    }
+    .card p {
+      margin: 5px 0;
+    }
+    .card button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 0.9rem;
       cursor: pointer;
+    }
+    .log-table {
+      margin-top: 30px;
+      width: 100%;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background-color: #1e88e5;
+      color: white;
+    }
+    .bar {
+      height: 20px;
+      background: lightgray;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .bar-inner {
+      height: 100%;
+      background: green;
+      width: 0%;
+      transition: width 0.5s ease;
     }
   </style>
 </head>
 <body>
+  <header>Firebase Kontrol Paneli</header>
 
-<h1>Firebase Relay Control Dashboard</h1>
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="E-posta" />
+    <input type="password" id="password" placeholder="Şifre" />
+    <button onclick="login()">Giriş Yap</button>
+  </div>
 
-<div id="loginForm">
-  <input type="email" id="email" placeholder="Enter Email" />
-  <input type="password" id="password" placeholder="Enter Password" />
-  <button onclick="login()">Login</button>
-</div>
+  <div id="dashboard">
+    <div class="status-cards">
+      <div class="card" id="suLitresiCard">
+        <h3>Su Litresi</h3>
+        <p id="suLitresi">Yükleniyor...</p>
+      </div>
+      <div class="card" id="suYuzdesiCard">
+        <h3>Su Yüzdesi</h3>
+        <div class="bar"><div class="bar-inner" id="suBar"></div></div>
+        <p id="suYuzdesi">Yükleniyor...</p>
+      </div>
+      <div class="card" id="toprakNemCard">
+        <h3>Toprak Nemi</h3>
+        <p id="toprakNem">Yükleniyor...</p>
+      </div>
 
-<div id="dashboard" style="display:none;">
-  <div class="relay-container">
-    <div class="relay-card" id="vana1Card">
-      <h2>Vana 1</h2>
-      <p>Status: <span id="vana1Status"></span></p>
-      <button onclick="toggleRelay('vana1Durum')">Toggle</button>
+      <div class="card" id="vana1Card">
+        <h3>Vana 1</h3>
+        <p id="vana1Durum">Yükleniyor...</p>
+        <button id="vana1Btn">...</button>
+      </div>
+      <div class="card" id="vana2Card">
+        <h3>Vana 2</h3>
+        <p id="vana2Durum">Yükleniyor...</p>
+        <button id="vana2Btn">...</button>
+      </div>
+      <div class="card" id="hidroforCard">
+        <h3>Hidrofor</h3>
+        <p id="hidroforDurum">Yükleniyor...</p>
+        <button id="hidroforBtn">...</button>
+      </div>
+      <div class="card" id="artezyenCard">
+        <h3>Artezyen</h3>
+        <p id="artezyenDurum">Yükleniyor...</p>
+        <button id="artezyenBtn">...</button>
+      </div>
     </div>
-    <div class="relay-card" id="vana2Card">
-      <h2>Vana 2</h2>
-      <p>Status: <span id="vana2Status"></span></p>
-      <button onclick="toggleRelay('vana2Durum')">Toggle</button>
-    </div>
-    <div class="relay-card" id="hidroforCard">
-      <h2>Hidrofor</h2>
-      <p>Status: <span id="hidroforStatus"></span></p>
-      <button onclick="toggleRelay('hidroforDurum')">Toggle</button>
+
+    <div class="log-table">
+      <h3>Son 10 Log Kaydı</h3>
+      <table id="logTable">
+        <thead>
+          <tr>
+            <th>Zaman</th>
+            <th>Su Litresi</th>
+            <th>Su Yüzdesi</th>
+            <th>Toprak Nem</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
-  <div style="margin-top:20px">
-    <p>Su Litresi: <span id="suLitresi"></span> L</p>
-    <p>Toprak Nem: <span id="toprakNem"></span>%</p>
-    <p>Su Yüzdesi: <span id="suYuzdesi"></span>%</p>
-  </div>
-  <h2>Loglar</h2>
-  <table class="log-table" id="logTable">
-    <thead>
-      <tr><th>Tarih</th><th>Su Alarm</th><th>Su Litresi</th><th>Su Yüzdesi</th><th>Toprak Nem</th></tr>
-    </thead>
-    <tbody id="logBody"></tbody>
-  </table>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
-    authDomain: "esp32-b35c8.firebaseapp.com",
-    databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "esp32-b35c8",
-    storageBucket: "esp32-b35c8.appspot.com",
-    messagingSenderId: "47343608336",
-    appId: "1:47343608336:web:2896e196cdf3f2b8616095"
-  };
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
+      authDomain: "esp32-b35c8.firebaseapp.com",
+      databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "esp32-b35c8",
+      storageBucket: "esp32-b35c8.appspot.com",
+      messagingSenderId: "47343608336",
+      appId: "1:47343608336:web:2896e196cdf3f2b8616095"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-  firebase.initializeApp(firebaseConfig);
-
-  function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("loginForm").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        setupDashboard();
-      })
-      .catch(err => alert(err.message));
-  }
-
-  function setupDashboard() {
     const db = firebase.database();
-    const relays = [
-      { key: 'vana1Durum', statusId: 'vana1Status', cardId: 'vana1Card' },
-      { key: 'vana2Durum', statusId: 'vana2Status', cardId: 'vana2Card' },
-      { key: 'hidroforDurum', statusId: 'hidroforStatus', cardId: 'hidroforCard' },
-    ];
 
-    relays.forEach(relay => {
-      const ref = db.ref(relay.key);
-      ref.on('value', snap => {
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+          document.getElementById("loginForm").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          startDataListeners();
+        })
+        .catch(err => alert("Giriş başarısız: " + err.message));
+    }
+
+    function updateToggle(cardId, btnId, key) {
+      const btn = document.getElementById(btnId);
+      const status = document.getElementById(cardId);
+      const ref = db.ref(`/${key}`);
+
+      ref.on("value", snap => {
         const val = snap.val();
-        document.getElementById(relay.statusId).innerText = val ? "ON" : "OFF";
-        document.getElementById(relay.cardId).style.backgroundColor = val ? "green" : "red";
+        status.innerText = val ? "Açık" : "Kapalı";
+        btn.innerText = val ? "Kapat" : "Aç";
+        btn.style.backgroundColor = val ? "green" : "red";
       });
-    });
 
-    db.ref("suLitresi").on('value', s => {
-      document.getElementById("suLitresi").innerText = s.val();
-    });
-    db.ref("toprakNem").on('value', s => {
-      document.getElementById("toprakNem").innerText = s.val();
-    });
-    db.ref("suYuzdesi").on('value', s => {
-      document.getElementById("suYuzdesi").innerText = s.val();
-    });
+      btn.onclick = () => ref.set(status.innerText !== "Açık");
+    }
 
-    db.ref("loglar/2025-05-31").on('value', snap => {
-      const data = snap.val();
-      if (!data) return;
-      const body = document.getElementById("logBody");
-      body.innerHTML = '';
-      const row = `<tr>
-        <td>2025-05-31</td>
-        <td>${data.suAlarm}</td>
-        <td>${data.suLitresi}</td>
-        <td>${data.suYuzdesi}</td>
-        <td>${data.toprakNem}</td>
-      </tr>`;
-      body.innerHTML += row;
-    });
-  }
+    function startDataListeners() {
+      db.ref("/suLitresi").on("value", snap => {
+        document.getElementById("suLitresi").innerText = snap.val() + " L";
+      });
 
-  function toggleRelay(key) {
-    const ref = firebase.database().ref(key);
-    ref.once('value').then(snap => {
-      ref.set(!snap.val());
-    });
-  }
-</script>
+      db.ref("/suYuzdesi").on("value", snap => {
+        const val = snap.val();
+        document.getElementById("suYuzdesi").innerText = val + "%";
+        document.getElementById("suBar").style.width = val + "%";
+      });
 
+      db.ref("/toprakNem").on("value", snap => {
+        document.getElementById("toprakNem").innerText = snap.val();
+      });
+
+      updateToggle("vana1Durum", "vana1Btn", "vana1Durum");
+      updateToggle("vana2Durum", "vana2Btn", "vana2Durum");
+      updateToggle("hidroforDurum", "hidroforBtn", "hidroforDurum");
+      updateToggle("artezyenDurum", "artezyenBtn", "artezyenDurum");
+
+      db.ref("/loglar/2025-05-31").limitToLast(10).on("value", snap => {
+        const tbody = document.querySelector("#logTable tbody");
+        tbody.innerHTML = "";
+        const logs = snap.val();
+        if (logs) {
+          Object.keys(logs).slice(-10).reverse().forEach(key => {
+            const log = logs[key];
+            const row = `<tr><td>${key}</td><td>${log.suLitresi}</td><td>${log.suYuzdesi}</td><td>${log.toprakNem}</td></tr>`;
+            tbody.innerHTML += row;
+          });
+        }
+      });
+    }
+  </script>
 </body>
 </html>
