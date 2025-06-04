@@ -1,175 +1,176 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>Firebase Kontrol Paneli</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akıllı Sulama Paneli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      background-color: #f2f2f2;
     }
-    header {
-      background-color: #1e88e5;
-      color: white;
-      padding: 15px;
+    h1 {
       text-align: center;
-      font-size: 1.5rem;
+      padding: 20px 0 10px;
     }
-    #loginForm {
-      max-width: 400px;
-      margin: auto;
-      margin-top: 50px;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    #loginForm input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    #loginForm button {
-      width: 100%;
-      padding: 10px;
-      background-color: #1e88e5;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-    }
-    #dashboard {
-      display: none;
-      padding: 20px;
-    }
-    .status-cards {
+    .status-panel {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 15px;
+      margin: 10px;
     }
     .card {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      width: 200px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
       text-align: center;
+      width: 200px;
+      color: white;
     }
-    .card h3 {
-      margin: 10px 0;
+    .card h2 {
+      margin: 0 0 10px;
     }
     .card p {
-      margin: 5px 0;
+      margin: 10px 0;
     }
-    .card button {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
+    .green {
+      background-color: #4caf50;
+    }
+    .red {
+      background-color: #f44336;
+    }
+    .button-green {
+      background-color: #4caf50;
       color: white;
-      font-size: 0.9rem;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
-    .log-table {
-      margin-top: 30px;
-      width: 100%;
+    .button-red {
+      background-color: #d32f2f;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .progress-bar {
+      background: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 25px;
+      width: 90%;
+      margin: 10px auto;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background-color: #2196f3;
+      text-align: center;
+      color: white;
+      line-height: 25px;
+    }
+    .logs {
+      max-width: 90%;
+      margin: 30px auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
       overflow-x: auto;
     }
+    .logs h3 {
+      margin-bottom: 10px;
+    }
     table {
-      width: 100%;
       border-collapse: collapse;
-      background: white;
+      width: 100%;
     }
     th, td {
+      border: 1px solid #ddd;
       padding: 8px;
-      border: 1px solid #ccc;
       text-align: center;
     }
     th {
-      background-color: #1e88e5;
-      color: white;
+      background-color: #f2f2f2;
     }
-    .bar {
-      height: 20px;
-      background: lightgray;
-      border-radius: 10px;
-      overflow: hidden;
+    #loginForm {
+      max-width: 400px;
+      margin: 60px auto 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    .bar-inner {
-      height: 100%;
-      background: green;
-      width: 0%;
-      transition: width 0.5s ease;
+    #loginForm input, #loginForm button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+    #dashboard {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <header>Firebase Kontrol Paneli</header>
+  <h1>Akıllı Sulama Kontrol Paneli</h1>
 
   <div id="loginForm">
-    <input type="email" id="email" placeholder="E-posta" />
-    <input type="password" id="password" placeholder="Şifre" />
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Şifre" required>
     <button onclick="login()">Giriş Yap</button>
   </div>
 
   <div id="dashboard">
-    <div class="status-cards">
-      <div class="card" id="suLitresiCard">
-        <h3>Su Litresi</h3>
-        <p id="suLitresi">Yükleniyor...</p>
-      </div>
-      <div class="card" id="suYuzdesiCard">
-        <h3>Su Yüzdesi</h3>
-        <div class="bar"><div class="bar-inner" id="suBar"></div></div>
-        <p id="suYuzdesi">Yükleniyor...</p>
-      </div>
-      <div class="card" id="toprakNemCard">
-        <h3>Toprak Nemi</h3>
-        <p id="toprakNem">Yükleniyor...</p>
-      </div>
-
+    <div class="status-panel">
       <div class="card" id="vana1Card">
-        <h3>Vana 1</h3>
-        <p id="vana1Durum">Yükleniyor...</p>
-        <button id="vana1Btn">...</button>
+        <h2>Vana 1</h2>
+        <p id="vana1Status">Yükleniyor...</p>
+        <button id="vana1Btn">Aç/Kapat</button>
       </div>
       <div class="card" id="vana2Card">
-        <h3>Vana 2</h3>
-        <p id="vana2Durum">Yükleniyor...</p>
-        <button id="vana2Btn">...</button>
+        <h2>Vana 2</h2>
+        <p id="vana2Status">Yükleniyor...</p>
+        <button id="vana2Btn">Aç/Kapat</button>
       </div>
       <div class="card" id="hidroforCard">
-        <h3>Hidrofor</h3>
-        <p id="hidroforDurum">Yükleniyor...</p>
-        <button id="hidroforBtn">...</button>
+        <h2>Hidrofor</h2>
+        <p id="hidroforStatus">Yükleniyor...</p>
+        <button id="hidroforBtn">Aç/Kapat</button>
       </div>
       <div class="card" id="artezyenCard">
-        <h3>Artezyen</h3>
-        <p id="artezyenDurum">Yükleniyor...</p>
-        <button id="artezyenBtn">...</button>
+        <h2>Artezyen</h2>
+        <p id="artezyenStatus">Yükleniyor...</p>
       </div>
     </div>
 
-    <div class="log-table">
+    <div class="status-panel">
+      <div class="card" style="background:white;color:#000;width:95%;">
+        <h2>Su Seviyesi</h2>
+        <div class="progress-bar">
+          <div id="suProgress" class="progress-bar-inner" style="width: 0%">0%</div>
+        </div>
+        <p id="suLitre">Litre: 0</p>
+        <p id="toprakNem">Toprak Nem: 0</p>
+      </div>
+    </div>
+
+    <div class="logs">
       <h3>Son 10 Log Kaydı</h3>
-      <table id="logTable">
+      <table>
         <thead>
           <tr>
-            <th>Zaman</th>
-            <th>Su Litresi</th>
-            <th>Su Yüzdesi</th>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>Su Litre</th>
+            <th>Su %</th>
             <th>Toprak Nem</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="logTable"></tbody>
       </table>
     </div>
   </div>
@@ -188,7 +189,6 @@
       appId: "1:47343608336:web:2896e196cdf3f2b8616095"
     };
     firebase.initializeApp(firebaseConfig);
-
     const db = firebase.database();
 
     function login() {
@@ -198,54 +198,47 @@
         .then(() => {
           document.getElementById("loginForm").style.display = "none";
           document.getElementById("dashboard").style.display = "block";
-          startDataListeners();
+          startRealtimeUpdates();
         })
-        .catch(err => alert("Giriş başarısız: " + err.message));
+        .catch(err => alert("Giriş hatası: " + err.message));
     }
 
-    function updateToggle(cardId, btnId, key) {
-      const btn = document.getElementById(btnId);
-      const status = document.getElementById(cardId);
-      const ref = db.ref(`/${key}`);
+    function setCardStatus(cardId, statusId, btnId, value, writePath = null) {
+      const card = document.getElementById(cardId);
+      const status = document.getElementById(statusId);
+      const button = document.getElementById(btnId);
+      const isOn = value === true;
 
-      ref.on("value", snap => {
-        const val = snap.val();
-        status.innerText = val ? "Açık" : "Kapalı";
-        btn.innerText = val ? "Kapat" : "Aç";
-        btn.style.backgroundColor = val ? "green" : "red";
-      });
-
-      btn.onclick = () => ref.set(status.innerText !== "Açık");
+      card.className = `card ${isOn ? 'green' : 'red'}`;
+      status.innerText = isOn ? "Açık" : "Kapalı";
+      if (button) {
+        button.innerText = isOn ? "Kapat" : "Aç";
+        button.className = isOn ? "button-red" : "button-green";
+        if (writePath) {
+          button.onclick = () => db.ref(writePath).set(!isOn);
+        }
+      }
     }
 
-    function startDataListeners() {
-      db.ref("/suLitresi").on("value", snap => {
-        document.getElementById("suLitresi").innerText = snap.val() + " L";
+    function startRealtimeUpdates() {
+      db.ref("vana1Durum").on("value", snap => setCardStatus("vana1Card", "vana1Status", "vana1Btn", snap.val(), "vana1Durum"));
+      db.ref("vana2Durum").on("value", snap => setCardStatus("vana2Card", "vana2Status", "vana2Btn", snap.val(), "vana2Durum"));
+      db.ref("hidroforDurum").on("value", snap => setCardStatus("hidroforCard", "hidroforStatus", "hidroforBtn", snap.val(), "hidroforDurum"));
+      db.ref("artezyenDurum").on("value", snap => setCardStatus("artezyenCard", "artezyenStatus", null, snap.val()));
+      db.ref("suYuzdesi").on("value", snap => {
+        const yuzde = snap.val();
+        document.getElementById("suProgress").style.width = yuzde + "%";
+        document.getElementById("suProgress").innerText = yuzde + "%";
       });
-
-      db.ref("/suYuzdesi").on("value", snap => {
-        const val = snap.val();
-        document.getElementById("suYuzdesi").innerText = val + "%";
-        document.getElementById("suBar").style.width = val + "%";
-      });
-
-      db.ref("/toprakNem").on("value", snap => {
-        document.getElementById("toprakNem").innerText = snap.val();
-      });
-
-      updateToggle("vana1Durum", "vana1Btn", "vana1Durum");
-      updateToggle("vana2Durum", "vana2Btn", "vana2Durum");
-      updateToggle("hidroforDurum", "hidroforBtn", "hidroforDurum");
-      updateToggle("artezyenDurum", "artezyenBtn", "artezyenDurum");
-
-      db.ref("/loglar/2025-05-31").limitToLast(10).on("value", snap => {
-        const tbody = document.querySelector("#logTable tbody");
+      db.ref("suLitresi").on("value", snap => document.getElementById("suLitre").innerText = "Litre: " + snap.val());
+      db.ref("toprakNem").on("value", snap => document.getElementById("toprakNem").innerText = "Toprak Nem: " + snap.val());
+      db.ref("loglar/2025-05-31").limitToLast(10).on("value", snap => {
+        const tbody = document.getElementById("logTable");
         tbody.innerHTML = "";
         const logs = snap.val();
         if (logs) {
-          Object.keys(logs).slice(-10).reverse().forEach(key => {
-            const log = logs[key];
-            const row = `<tr><td>${key}</td><td>${log.suLitresi}</td><td>${log.suYuzdesi}</td><td>${log.toprakNem}</td></tr>`;
+          Object.entries(logs).slice(-10).reverse().forEach(([time, data]) => {
+            const row = `<tr><td>2025-05-31</td><td>${time}</td><td>${data.suLitresi}</td><td>${data.suYuzdesi}</td><td>${data.toprakNem}</td></tr>`;
             tbody.innerHTML += row;
           });
         }
