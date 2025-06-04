@@ -10,149 +10,206 @@
       text-align: center;
       background-color: #f9f9f9;
       margin: 0;
-      padding: 0;
+      padding: 0 10px 40px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      justify-content: space-between;
     }
     h1 {
-      margin-top: 20px;
+      margin-top: 30px;
       font-size: 1.8rem;
     }
-    .container {
+    .relay-card {
+      display: inline-block;
+      padding: 20px;
+      margin: 15px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 220px;
+      vertical-align: top;
+      color: white;
+    }
+    .relay-card h2 {
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+    }
+    .relay-card p {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+    .relay-card button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      background-color: #1e88e5;
+      cursor: pointer;
+      font-size: 16px;
+      width: 90%;
+    }
+    #dashboard .relay-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      margin: 20px;
     }
-    .card {
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      margin: 15px;
-      padding: 20px;
-      width: 250px;
-    }
-    .card h3 {
-      margin-top: 0;
-    }
-    .card span {
-      font-weight: bold;
-    }
-    table {
+    .log-table {
       margin: 20px auto;
-      border-collapse: collapse;
       width: 90%;
-      max-width: 700px;
-      background: white;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 960px;
+      border-collapse: collapse;
     }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
+    .log-table th, .log-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
     }
-    th {
-      background-color: #f2f2f2;
+    .log-table th {
+      background-color: #f0f0f0;
     }
     #loginForm {
       max-width: 400px;
-      margin: 80px auto;
+      margin: 80px auto 20px;
       background: white;
-      padding: 30px;
+      padding: 30px 20px;
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    #loginForm input {
+    #loginForm input, #loginForm button {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      font-size: 1rem;
     }
     #loginForm button {
-      width: 100%;
-      padding: 12px;
-      background-color: #007BFF;
+      background-color: #1e88e5;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
     }
-    #dashboard { display: none; }
   </style>
 </head>
 <body>
-  <h1>Firebase Relay Control Dashboard</h1>
 
-  <div id="loginForm">
-    <input type="email" id="email" placeholder="Enter Email" required />
-    <input type="password" id="password" placeholder="Enter Password" required />
-    <button id="loginBtn">Login</button>
-  </div>
+<h1>Firebase Relay Control Dashboard</h1>
 
-  <div id="dashboard">
-    <div class="container">
-      <div class="card"><h3>Hidrofor</h3><p><span id="hidroforDurum">...</span></p></div>
-      <div class="card"><h3>Artezyen</h3><p><span id="artezyenDurum">...</span></p></div>
-      <div class="card"><h3>Su Litresi</h3><p><span id="suLitresi">...</span> L</p></div>
-      <div class="card"><h3>Su Yüzdesi</h3><p><span id="suYuzdesi">...</span>%</p></div>
-      <div class="card"><h3>Toprak Nem</h3><p><span id="toprakNem">...</span></p></div>
+<div id="loginForm">
+  <input type="email" id="email" placeholder="Enter Email" />
+  <input type="password" id="password" placeholder="Enter Password" />
+  <button onclick="login()">Login</button>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <div class="relay-container">
+    <div class="relay-card" id="vana1Card">
+      <h2>Vana 1</h2>
+      <p>Status: <span id="vana1Status"></span></p>
+      <button onclick="toggleRelay('vana1Durum')">Toggle</button>
     </div>
-
-    <h2>Log Kayıtları</h2>
-    <table id="logTable">
-      <thead>
-        <tr><th>Tarih</th><th>Su Alarm</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="relay-card" id="vana2Card">
+      <h2>Vana 2</h2>
+      <p>Status: <span id="vana2Status"></span></p>
+      <button onclick="toggleRelay('vana2Durum')">Toggle</button>
+    </div>
+    <div class="relay-card" id="hidroforCard">
+      <h2>Hidrofor</h2>
+      <p>Status: <span id="hidroforStatus"></span></p>
+      <button onclick="toggleRelay('hidroforDurum')">Toggle</button>
+    </div>
   </div>
+  <div style="margin-top:20px">
+    <p>Su Litresi: <span id="suLitresi"></span> L</p>
+    <p>Toprak Nem: <span id="toprakNem"></span>%</p>
+    <p>Su Yüzdesi: <span id="suYuzdesi"></span>%</p>
+  </div>
+  <h2>Loglar</h2>
+  <table class="log-table" id="logTable">
+    <thead>
+      <tr><th>Tarih</th><th>Su Alarm</th><th>Su Litresi</th><th>Su Yüzdesi</th><th>Toprak Nem</th></tr>
+    </thead>
+    <tbody id="logBody"></tbody>
+  </table>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
-      authDomain: "esp32-b35c8.firebaseapp.com",
-      databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "esp32-b35c8",
-      storageBucket: "esp32-b35c8.firebasestorage.app",
-      messagingSenderId: "47343608336",
-      appId: "1:47343608336:web:2896e196cdf3f2b8616095"
-    };
-    firebase.initializeApp(firebaseConfig);
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyApy-6P6wctARMhBZMeea6AE0KxvjklLsQ",
+    authDomain: "esp32-b35c8.firebaseapp.com",
+    databaseURL: "https://esp32-b35c8-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "esp32-b35c8",
+    storageBucket: "esp32-b35c8.appspot.com",
+    messagingSenderId: "47343608336",
+    appId: "1:47343608336:web:2896e196cdf3f2b8616095"
+  };
 
-    const loginBtn = document.getElementById("loginBtn");
-    loginBtn.onclick = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(() => {
-          document.getElementById("loginForm").style.display = "none";
-          document.getElementById("dashboard").style.display = "block";
-          loadData();
-        })
-        .catch(err => alert("Login failed: " + err.message));
-    };
+  firebase.initializeApp(firebaseConfig);
 
-    function loadData() {
-      const db = firebase.database().ref();
-      db.on("value", (snapshot) => {
-        const data = snapshot.val();
-        document.getElementById("hidroforDurum").innerText = data.hidroforDurum;
-        document.getElementById("artezyenDurum").innerText = data.artezyenDurum;
-        document.getElementById("suLitresi").innerText = data.suLitresi;
-        document.getElementById("suYuzdesi").innerText = data.suYuzdesi;
-        document.getElementById("toprakNem").innerText = data.toprakNem;
+  function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        setupDashboard();
+      })
+      .catch(err => alert(err.message));
+  }
 
-        const logBody = document.querySelector("#logTable tbody");
-        logBody.innerHTML = "";
-        for (const date in data.loglar) {
-          const log = data.loglar[date];
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${date}</td><td>${log.suAlarm}</td>`;
-          logBody.appendChild(row);
-        }
+  function setupDashboard() {
+    const db = firebase.database();
+    const relays = [
+      { key: 'vana1Durum', statusId: 'vana1Status', cardId: 'vana1Card' },
+      { key: 'vana2Durum', statusId: 'vana2Status', cardId: 'vana2Card' },
+      { key: 'hidroforDurum', statusId: 'hidroforStatus', cardId: 'hidroforCard' },
+    ];
+
+    relays.forEach(relay => {
+      const ref = db.ref(relay.key);
+      ref.on('value', snap => {
+        const val = snap.val();
+        document.getElementById(relay.statusId).innerText = val ? "ON" : "OFF";
+        document.getElementById(relay.cardId).style.backgroundColor = val ? "green" : "red";
       });
-    }
-  </script>
+    });
+
+    db.ref("suLitresi").on('value', s => {
+      document.getElementById("suLitresi").innerText = s.val();
+    });
+    db.ref("toprakNem").on('value', s => {
+      document.getElementById("toprakNem").innerText = s.val();
+    });
+    db.ref("suYuzdesi").on('value', s => {
+      document.getElementById("suYuzdesi").innerText = s.val();
+    });
+
+    db.ref("loglar/2025-05-31").on('value', snap => {
+      const data = snap.val();
+      if (!data) return;
+      const body = document.getElementById("logBody");
+      body.innerHTML = '';
+      const row = `<tr>
+        <td>2025-05-31</td>
+        <td>${data.suAlarm}</td>
+        <td>${data.suLitresi}</td>
+        <td>${data.suYuzdesi}</td>
+        <td>${data.toprakNem}</td>
+      </tr>`;
+      body.innerHTML += row;
+    });
+  }
+
+  function toggleRelay(key) {
+    const ref = firebase.database().ref(key);
+    ref.once('value').then(snap => {
+      ref.set(!snap.val());
+    });
+  }
+</script>
+
 </body>
 </html>
